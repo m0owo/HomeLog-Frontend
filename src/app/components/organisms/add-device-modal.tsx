@@ -26,7 +26,7 @@ export default function AddDeviceModal({
 
   return (
     <div className="w-96 rounded bg-white p-6 shadow-md">
-      <h2 className="mb-4 text-xl font-bold">Add New Room</h2>
+      <h2 className="mb-4 text-xl font-bold">Add New Device</h2>
       <input
         type="text"
         value={deviceName}
