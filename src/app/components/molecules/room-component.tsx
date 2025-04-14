@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DeviceCard, { DeviceCardProps } from "../atoms/device-card";
 
-interface RoomComponentProps {
+export interface RoomComponentProps {
   roomName: string;
   roomDevices: DeviceCardProps[];
 }

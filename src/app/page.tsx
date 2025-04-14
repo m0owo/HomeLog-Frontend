@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import RoomComponent from "./components/molecules/room-component";
+import AddRoomModal from "./components/organisms/add-room-modal";
 
 export default function Home() {
+  const [showModal, setShowModal] = useState(true);
   const roomDevices = [
     {
       deviceName: "Living Room - LG Dual Inverter",
@@ -30,30 +33,71 @@ export default function Home() {
       deviceType: "ac",
     },
   ];
+  const [curRooms, setCurRooms] = useState([
+    {
+      roomName: "Test Room 1",
+      roomDevices: roomDevices,
+    },
+    {
+      roomName: "Test Room 2",
+      roomDevices: roomDevices,
+    },
+    {
+      roomName: "Test Room 3",
+      roomDevices: roomDevices,
+    },
+    {
+      roomName: "Test Room 4",
+      roomDevices: roomDevices,
+    },
+    {
+      roomName: "Test Room 5",
+      roomDevices: roomDevices,
+    },
+    {
+      roomName: "Test Room 6",
+      roomDevices: roomDevices,
+    },
+  ]);
 
   function handleAddRoom() {
-    console.log("Add Room");
+    setShowModal(true);
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      {/* Main Content */}
+    <div className="flex h-full w-full flex-col">
       <div className="grid flex-grow grid-cols-1 gap-10 overflow-auto sm:grid-cols-2 2xl:grid-cols-3">
-        <RoomComponent roomName="Test Room 1" roomDevices={roomDevices} />
-        <RoomComponent roomName="Test Room 2" roomDevices={roomDevices} />
-        <RoomComponent roomName="Test Room 3" roomDevices={roomDevices} />
-        <RoomComponent roomName="Test Room 4" roomDevices={roomDevices} />
+        {curRooms.map((room) => (
+          <RoomComponent
+            roomDevices={room.roomDevices}
+            roomName={room.roomName}
+            key={room.roomName}
+          />
+        ))}
       </div>
 
-      {/* Add Room Button */}
-      <div className="fixed right-0 bottom-0 p-16 pb-6">
+      <div className="fixed right-0 bottom-0 p-10">
         <button
           onClick={handleAddRoom}
-          className="rounded border bg-white px-3 py-1 font-normal disabled:opacity-50"
+          className="rounded-xl border bg-white p-4 text-lg font-normal disabled:opacity-50"
         >
           + Add Room
         </button>
       </div>
+      {showModal && (
+        <div>
+          <div className="fixed inset-0 z-40 bg-black opacity-35" />
+
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <AddRoomModal
+              setShowModal={setShowModal}
+              addRoom={(newRoom) => {
+                setCurRooms((prev) => [...prev, newRoom]);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
