@@ -31,7 +31,7 @@ export default function RootLayout({
         <div className="fixed top-0 left-0 h-full">
           <Navbar />
         </div>
-        <div className="overflow-y-scroll p-10 pl-30">
+        <div className="overflow-y-scroll p-10 pl-36">
           <div className="flex justify-center">{children}</div>
         </div>
         <Toaster />

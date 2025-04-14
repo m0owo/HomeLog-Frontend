@@ -5,52 +5,29 @@ import RoomComponent from "./components/molecules/room-component";
 export default function Home() {
   const roomDevices = [
     {
-      deviceName: "Air Conditioner",
-      deviceDetails: "Living Room - LG Dual Inverter",
+      deviceName: "Living Room - LG Dual Inverter",
+      deviceDetails: "Temperature: 24 C",
+      deviceType: "ac",
     },
     {
-      deviceName: "Smart Bulb",
-      deviceDetails: "Bedroom - Philips Hue",
+      deviceName: "Bedroom - Philips Hue",
+      deviceDetails: "Brightness: 60%",
+      deviceType: "light",
     },
     {
-      deviceName: "Smart Lock",
-      deviceDetails: "Front Door - August WiFi Lock",
-    },
-    {
-      deviceName: "Thermostat",
-      deviceDetails: "Hallway - Nest Thermostat E",
-    },
-    {
-      deviceName: "Security Camera",
-      deviceDetails: "Garage - Ring Spotlight Cam",
-    },
-    {
-      deviceName: "Robot Vacuum",
-      deviceDetails: "Living Room - Roomba i7+",
+      deviceName: "Smart Bulb 2",
+      deviceDetails: "Brightness: 70%",
+      deviceType: "light",
     },
     {
       deviceName: "Ceiling Fan",
-      deviceDetails: "Bedroom - Hunter Symphony",
+      deviceDetails: "Level: 1/3",
+      deviceType: "fan",
     },
     {
-      deviceName: "Smart Plug",
-      deviceDetails: "Kitchen - TP-Link Kasa",
-    },
-    {
-      deviceName: "Motion Sensor",
-      deviceDetails: "Backyard - Aqara Sensor",
-    },
-    {
-      deviceName: "Sound System",
-      deviceDetails: "Living Room - Sonos Beam",
-    },
-    {
-      deviceName: "Air Purifier",
-      deviceDetails: "Office - Dyson Pure Cool",
-    },
-    {
-      deviceName: "Water Leak Sensor",
-      deviceDetails: "Basement - YoLink Sensor",
+      deviceName: "Living Room - LG Dual Inverter 2",
+      deviceDetails: "Temperature: 23 C",
+      deviceType: "ac",
     },
   ];
 
@@ -72,7 +49,7 @@ export default function Home() {
       <div className="fixed right-0 bottom-0 p-16 pb-6">
         <button
           onClick={handleAddRoom}
-          className="rounded border px-3 py-1 disabled:opacity-50"
+          className="rounded border bg-white px-3 py-1 font-normal disabled:opacity-50"
         >
           + Add Room
         </button>
