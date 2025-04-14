@@ -21,7 +21,7 @@ export default function Navbar() {
           <p>Home</p>
         </Link>
         <Link
-          href="/"
+          href="/routines"
           className="flex w-full flex-col items-center justify-center gap-2"
         >
           <p>
