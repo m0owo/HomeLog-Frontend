@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DeviceCard, { DeviceCardProps } from "../atoms/device-card";
+import AddDeviceModal from "../organisms/add-device-modal";
 
 export interface RoomComponentProps {
   roomName: string;
@@ -12,11 +13,13 @@ export default function RoomComponent({
   roomName,
   roomDevices,
 }: RoomComponentProps) {
+  const [showModal, setShowModal] = useState(false);
   const pageSize = 6;
   const [curPage, setCurPage] = useState(0);
   const totalPages = Math.ceil(roomDevices.length / pageSize);
+  const [curDevices, setCurDevices] = useState(roomDevices);
 
-  const paginatedDevices = roomDevices.slice(
+  const paginatedDevices = curDevices.slice(
     curPage * pageSize,
     (curPage + 1) * pageSize,
   );
@@ -25,7 +28,7 @@ export default function RoomComponent({
   const secondColumn = paginatedDevices.slice(3, 6);
 
   function handleAddDevice() {
-    console.log("Add Device");
+    setShowModal(true);
   }
 
   return (
@@ -88,6 +91,20 @@ export default function RoomComponent({
           + Add Device
         </button>
       </div>
+      {showModal && (
+        <div>
+          <div className="fixed inset-0 z-40 bg-black opacity-35" />
+
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <AddDeviceModal
+              setShowModal={setShowModal}
+              addDevice={(newDevice) => {
+                setCurDevices((prev) => [...prev, newDevice]);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
