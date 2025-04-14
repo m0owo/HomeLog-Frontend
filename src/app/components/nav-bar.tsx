@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ClockIcon from "./icons/clock-icon";
+import ComputerTvIcon from "./icons/computer-tv-icon";
 import HomeIcon from "./icons/home-icon";
 
 export default function Navbar() {
@@ -10,7 +11,7 @@ export default function Navbar() {
       <div className="mb-14 w-full p-2 text-center text-xl font-bold">
         HomeLog
       </div>
-      <div className="flex flex-col justify-center gap-4 p-2">
+      <div className="flex flex-col justify-center gap-6 p-2">
         <Link
           href="/"
           className="flex w-full flex-col items-center justify-center gap-2"
@@ -28,6 +29,15 @@ export default function Navbar() {
             <ClockIcon />
           </p>
           <p>Routines</p>
+        </Link>
+        <Link
+          href="/assistant"
+          className="flex w-full flex-col items-center justify-center gap-2"
+        >
+          <p>
+            <ComputerTvIcon />
+          </p>
+          <p>Assistant</p>
         </Link>
       </div>
     </div>
