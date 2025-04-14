@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ClockIcon from "./icons/clock-icon";
 import HomeIcon from "./icons/home-icon";
 
 export default function Navbar() {
@@ -24,7 +25,7 @@ export default function Navbar() {
           className="flex w-full flex-col items-center justify-center gap-2"
         >
           <p>
-            <HomeIcon />
+            <ClockIcon />
           </p>
           <p>Routines</p>
         </Link>
