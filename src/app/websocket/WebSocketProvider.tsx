@@ -19,6 +19,8 @@ interface WebSocketContextType {
   socket: WebSocket;
   connected: boolean;
   sendMessage: (data: Message) => void;
+  getAllRooms: () => void;
+  getAllDevices: () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -37,18 +39,17 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log("✅ WebSocket connected");
       setConnected(true);
       setReconnectAttempt(0);
       setSocket(ws);
     };
 
     ws.onerror = (err) => {
-      console.error("⚠️ WebSocket error:", err);
+      console.error("WebSocket error:", err);
     };
 
     ws.onclose = () => {
-      console.warn("🔌 WebSocket disconnected");
+      console.warn("WebSocket disconnected");
       setConnected(false);
       attemptReconnect();
     };
@@ -62,7 +63,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     setReconnectAttempt(nextAttempt);
 
     const delay = Math.min(1000 * Math.pow(2, nextAttempt - 1), 30000);
-    console.log(`🔁 Reconnecting in ${delay}ms (attempt ${nextAttempt})`);
+    console.log(`Reconnecting in ${delay}ms (attempt ${nextAttempt})`);
 
     reconnectTimeoutRef.current = setTimeout(() => {
       connectWebSocket();
@@ -77,6 +78,22 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getAllRooms = () => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ action: "get_all_rooms" }));
+    } else {
+      console.warn("Cannot get all rooms WebSocket not open");
+    }
+  };
+
+  const getAllDevices = () => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ action: "get_all_devices" }));
+    } else {
+      console.warn("Cannot get all rooms WebSocket not open");
+    }
+  };
+
   useEffect(() => {
     const ws = connectWebSocket();
     return () => ws?.close();
@@ -85,7 +102,9 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   if (!socket) return;
 
   return (
-    <WebSocketContext.Provider value={{ socket, connected, sendMessage }}>
+    <WebSocketContext.Provider
+      value={{ socket, connected, sendMessage, getAllRooms, getAllDevices }}
+    >
       {children}
     </WebSocketContext.Provider>
   );

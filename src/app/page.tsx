@@ -1,78 +1,118 @@
 "use client";
 
-import { useState } from "react";
-import RoomComponent from "./components/molecules/room-component";
+import { useEffect, useState } from "react";
+import RoomComponent, {
+  Device,
+  Room,
+} from "./components/molecules/room-component";
 import AddRoomModal from "./components/organisms/add-room-modal";
+import { useWebSocket } from "./websocket/WebSocketProvider";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
 
-  const roomDevices = [
-    {
-      deviceName: "Living Room - LG Dual Inverter",
-      deviceDetails: "Temperature: 24 C",
-      deviceType: "ac",
-    },
-    {
-      deviceName: "Bedroom - Philips Hue",
-      deviceDetails: "Brightness: 60%",
-      deviceType: "light",
-    },
-    {
-      deviceName: "Smart Bulb 2",
-      deviceDetails: "Brightness: 70%",
-      deviceType: "light",
-    },
-    {
-      deviceName: "Ceiling Fan",
-      deviceDetails: "Level: 1/3",
-      deviceType: "fan",
-    },
-    {
-      deviceName: "Living Room - LG Dual Inverter 2",
-      deviceDetails: "Temperature: 23 C",
-      deviceType: "ac",
-    },
-  ];
-  const [curRooms, setCurRooms] = useState([
-    {
-      roomName: "Test Room 1",
-      roomDevices: roomDevices,
-    },
-    {
-      roomName: "Test Room 2",
-      roomDevices: roomDevices,
-    },
-    {
-      roomName: "Test Room 3",
-      roomDevices: roomDevices,
-    },
-    {
-      roomName: "Test Room 4",
-      roomDevices: roomDevices,
-    },
-    {
-      roomName: "Test Room 5",
-      roomDevices: roomDevices,
-    },
-    {
-      roomName: "Test Room 6",
-      roomDevices: roomDevices,
-    },
-  ]);
+  const { socket, connected, getAllRooms, getAllDevices } = useWebSocket();
+
+  useEffect(() => {
+    if (!connected) return;
+    getAllRooms();
+    getAllDevices();
+  }, []);
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "room_list") {
+        const parsedRooms: Room[] = Array.isArray(data.content[0].Rooms)
+          ? data.content[0].Rooms.map((room: string[]) => ({
+              id: room[0],
+              roomName: room[1],
+            }))
+          : [];
+
+        setAllRooms(parsedRooms);
+      } else if (data.type === "device_list") {
+        const parsedDevices: Device[] = Array.isArray(data.content)
+          ? data.content.map((device: string[]) => {
+              const [
+                deviceId,
+                deviceName,
+                deviceType,
+                roomId,
+                deviceStatus,
+                deviceDetailOne,
+                deviceDetailTwo,
+              ] = device;
+
+              let parsedDetails;
+
+              switch (deviceType) {
+                case "ac":
+                  parsedDetails = {
+                    temperature: deviceDetailOne,
+                    mode: deviceDetailTwo,
+                  };
+                  break;
+                case "light":
+                  parsedDetails = {
+                    brightness: deviceDetailOne,
+                    color: deviceDetailTwo,
+                  };
+                  break;
+                case "fan":
+                  parsedDetails = {
+                    speed: deviceDetailOne,
+                    second: deviceDetailTwo,
+                  };
+                  break;
+                default:
+                  console.warn("Unknown device type", deviceType);
+                  parsedDetails = {};
+              }
+              return {
+                deviceId,
+                deviceName,
+                deviceType,
+                roomId,
+                deviceStatus,
+                deviceDetails: parsedDetails,
+              };
+            })
+          : [];
+
+        setAllDevices((prev) => {
+          const deviceMap = new Map(prev.map((d) => [d.deviceId, d]));
+          parsedDevices.forEach((d) => deviceMap.set(d.deviceId, d));
+          return Array.from(deviceMap.values());
+        });
+      }
+    } catch (err) {
+      console.error("Failed to get room or devices", err);
+    }
+  };
+
+  const [allRooms, setAllRooms] = useState<Room[]>([]);
+  const [allDevices, setAllDevices] = useState<Device[]>([]);
 
   function handleAddRoom() {
     setShowModal(true);
   }
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <div className="grid flex-grow grid-cols-1 gap-10 overflow-auto sm:grid-cols-2 2xl:grid-cols-3">
-        {curRooms.map((room) => (
+    <div className="flex min-h-screen w-full flex-col">
+      <div className="grid flex-grow grid-cols-1 grid-rows-[auto] gap-10 overflow-auto p-10 sm:grid-cols-2 2xl:grid-cols-3">
+        {allRooms.map((room) => (
           <RoomComponent
-            roomDevices={room.roomDevices}
-            roomName={room.roomName}
-            key={room.roomName}
+            roomDevices={allDevices.filter((device) => {
+              const deviceRoomId = device.roomId?.trim() ?? "";
+              const roomRoomId = room.id ?? "";
+              const isDeviceInRoom = deviceRoomId === roomRoomId;
+
+              return isDeviceInRoom;
+            })}
+            room={room}
+            key={room.id}
           />
         ))}
       </div>
@@ -93,7 +133,7 @@ export default function Home() {
             <AddRoomModal
               setShowModal={setShowModal}
               addRoom={(newRoom) => {
-                setCurRooms((prev) => [...prev, newRoom]);
+                setAllRooms((prev) => [...prev, newRoom]);
               }}
             />
           </div>

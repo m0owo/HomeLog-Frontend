@@ -4,23 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { Message, useWebSocket } from "../websocket/WebSocketProvider";
 
 export default function ChatPage() {
-  const { socket, connected, sendMessage } = useWebSocket();
   const [messages, setMessages] = useState<Message[]>([]);
-  console.log("connected", connected);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim() || !connected) return;
-    const newMessage: Message = {
-      id: new Date(),
-      text: input,
-      sender: "user",
-    };
-    sendMessage(newMessage);
-    setMessages((prev) => [...prev, newMessage]);
-    setInput("");
-  };
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const { socket, connected, sendMessage } = useWebSocket();
 
   socket.onmessage = (event) => {
     try {
@@ -38,9 +30,17 @@ export default function ChatPage() {
     }
   };
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const handleSend = () => {
+    if (!input.trim() || !connected) return;
+    const newMessage: Message = {
+      id: new Date(),
+      text: input,
+      sender: "user",
+    };
+    sendMessage(newMessage);
+    setMessages((prev) => [...prev, newMessage]);
+    setInput("");
+  };
 
   return (
     <div className="flex w-full flex-col">

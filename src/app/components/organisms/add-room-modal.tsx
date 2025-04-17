@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { DeviceCardProps } from "../atoms/device-card";
+import { Room } from "../molecules/room-component";
 
 interface AddRoomModalProps {
   setShowModal: (show: boolean) => void;
-  addRoom: (newRoom: {
-    roomName: string;
-    roomDevices: DeviceCardProps[];
-  }) => void;
+  addRoom: (newRoom: Room) => void;
 }
 
 export default function AddRoomModal({
@@ -18,10 +15,18 @@ export default function AddRoomModal({
   const [roomName, setRoomName] = useState("");
 
   const handleSubmit = () => {
-    addRoom({
-      roomName,
-      roomDevices: [],
-    });
+    if (roomName.trim() === "") {
+      alert("Room name cannot be empty!");
+      return;
+    }
+
+    const newRoom: Room = {
+      id: roomName,
+      roomName: roomName,
+    };
+
+    addRoom(newRoom);
+    setRoomName("");
     setShowModal(false);
   };
 
