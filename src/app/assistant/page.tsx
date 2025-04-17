@@ -86,7 +86,7 @@ export default function ChatPage() {
   }, [messages]);
 
   return (
-    <div className="flex w-full flex-col border border-black">
+    <div className="flex w-full flex-col">
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500">No messages yet</div>
@@ -107,14 +107,14 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="w-full border-t bg-white p-4">
+      <div className="w-full rounded-xl bg-white p-4">
         <div className="flex">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            className="flex-1 rounded border p-2"
+            className="flex-1 rounded p-2 focus:outline-none"
             placeholder="Type a message"
           />
           <button

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import ChatMessageIcon from "./icons/chat-message-icon";
 import ClockIcon from "./icons/clock-icon";
-import ComputerTvIcon from "./icons/computer-tv-icon";
-import HomeIcon from "./icons/home-icon";
+import HouseIcon from "./icons/house-icon";
 
 export default function Navbar() {
   return (
@@ -17,7 +17,7 @@ export default function Navbar() {
           className="flex w-full flex-col items-center justify-center gap-2"
         >
           <p>
-            <HomeIcon />
+            <HouseIcon />
           </p>
           <p>Home</p>
         </Link>
@@ -35,7 +35,7 @@ export default function Navbar() {
           className="flex w-full flex-col items-center justify-center gap-2"
         >
           <p>
-            <ComputerTvIcon />
+            <ChatMessageIcon></ChatMessageIcon>
           </p>
           <p>Assistant</p>
         </Link>
