@@ -13,54 +13,92 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
+  const [reconnectAttempt, setReconnectAttempt] = useState(0);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const wsUrl = "ws://localhost:8765"; // Update with your WebSocket server URL
+
+  const connectWebSocket = () => {
+    try {
+      const ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log("Connected to WebSocket server");
+        setConnected(true);
+        setReconnecting(false);
+        setReconnectAttempt(0);
+        setSocket(ws);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("Received message:", data);
+          if (data["type"] === "chat" || data["type"] === "broadcast") {
+            console.log("Received message:", data.content);
+            const newMessage: Message = {
+              id: new Date(),
+              text: data.content,
+              sender: "computer",
+            };
+            setMessages((prev) => [...prev, newMessage]);
+          }
+        } catch (error) {
+          console.error("Error parsing message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = () => {
+        console.log("Disconnected from WebSocket server");
+        setConnected(false);
+        attemptReconnect();
+      };
+
+      return ws;
+    } catch (error) {
+      console.error("Failed to connect to WebSocket:", error);
+      attemptReconnect();
+      return null;
+    }
+  };
+
+  const attemptReconnect = () => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    setReconnecting(true);
+    const nextAttempt = reconnectAttempt + 1;
+    setReconnectAttempt(nextAttempt);
+
+    // Exponential backoff: 1s, 2s, 4s, 8s, etc. with a max of 30s
+    const delay = Math.min(1000 * Math.pow(2, nextAttempt - 1), 30000);
+    console.log(
+      `Attempting to reconnect in ${delay}ms (attempt ${nextAttempt})`,
+    );
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      connectWebSocket();
+    }, delay);
+  };
 
   useEffect(() => {
-    // Initialize WebSocket connection
-    const ws = new WebSocket("ws://localhost:8765"); // Update with your WebSocket server URL
-
-    ws.onopen = () => {
-      console.log("Connected to WebSocket server");
-      setConnected(true);
-      setSocket(ws);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("Received message:", data);
-        if (data["type"] === "chat" || data["type"] === "broadcast") {
-          console.log("Received message:", data.content);
-          const newMessage: Message = {
-            id: new Date(),
-            text: data.content,
-            sender: "computer",
-          };
-          setMessages((prev) => [...prev, newMessage]);
-        }
-      } catch (error) {
-        console.error("Error parsing message:", error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from WebSocket server");
-      setConnected(false);
-
-      // Try to reconnect
-      setTimeout(() => {
-        setConnected(true);
-        setSocket(new WebSocket("ws://localhost:8765"));
-      }, 1000);
-    };
+    const ws = connectWebSocket();
 
     return () => {
-      ws.close();
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (ws) {
+        ws.close();
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSend = () => {
@@ -87,6 +125,11 @@ export default function ChatPage() {
 
   return (
     <div className="flex w-full flex-col">
+      {reconnecting && (
+        <div className="bg-yellow-500 p-2 text-center text-white">
+          Connection lost. Reconnecting... (Attempt {reconnectAttempt})
+        </div>
+      )}
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500">No messages yet</div>
