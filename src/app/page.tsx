@@ -6,6 +6,7 @@ import AddRoomModal from "./components/organisms/add-room-modal";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
+
   const roomDevices = [
     {
       deviceName: "Living Room - LG Dual Inverter",
