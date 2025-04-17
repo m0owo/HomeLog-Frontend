@@ -101,7 +101,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <div className="grid flex-grow grid-cols-1 grid-rows-[auto] gap-10 overflow-auto p-10 sm:grid-cols-2 2xl:grid-cols-3">
+      <div className="grid flex-grow grid-cols-1 grid-rows-[auto] gap-16 overflow-auto p-10 sm:grid-cols-2 2xl:grid-cols-3">
         {allRooms.map((room) => (
           <RoomComponent
             roomDevices={allDevices.filter((device) => {

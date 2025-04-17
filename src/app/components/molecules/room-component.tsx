@@ -45,17 +45,17 @@ export default function RoomComponent({
   const [showModal, setShowModal] = useState(false);
   const pageSize = 4;
   const [curPage, setCurPage] = useState(0);
-  const totalPages = Math.ceil(roomDevices.length / pageSize);
   const [curDevices, setCurDevices] = useState(roomDevices);
+
   useEffect(() => {
     setCurDevices(roomDevices);
   }, [roomDevices]);
 
+  const totalPages = Math.ceil(curDevices.length / pageSize);
   const paginatedDevices = curDevices.slice(
     curPage * pageSize,
     (curPage + 1) * pageSize,
   );
-
   const firstColumn = paginatedDevices.slice(0, pageSize / 2);
   const secondColumn = paginatedDevices.slice(pageSize / 2, pageSize);
 
@@ -64,7 +64,7 @@ export default function RoomComponent({
   }
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-md p-4">
+    <div className="flex h-[500px] flex-col justify-between rounded-md p-4">
       <div className="h-full w-full">
         <div className="text-lg font-semibold">{room.roomName}</div>
 
