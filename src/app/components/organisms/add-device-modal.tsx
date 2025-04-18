@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useWebSocket } from "@/app/websocket/WebSocketProvider";
 import {
   ACDetails,
   Device,
@@ -21,61 +22,77 @@ export default function AddDeviceModal({
 }: AddDeviceModalProps) {
   const [deviceName, setDeviceName] = useState("");
   const [deviceType, setDeviceType] = useState("");
-
-  // Default values for deviceDetails based on device type
   const [deviceDetails, setDeviceDetails] = useState<
     ACDetails | LightDetails | FanDetails | null
   >(null);
+  const { socket, addNewDevice } = useWebSocket();
 
   const handleSubmit = () => {
     if (!deviceName || !deviceType || !deviceDetails) {
-      // Handle missing fields
       return;
     }
 
+    addNewDevice(
+      deviceName,
+      deviceName,
+      deviceType,
+      roomId,
+      "off",
+      Object.values(deviceDetails),
+    );
+
     const newDevice: Device = {
-      deviceId: deviceName, // You could use another way to generate unique IDs
+      deviceId: deviceName,
       deviceName: deviceName,
       deviceType: deviceType,
       roomId: roomId,
-      deviceStatus: "off", // Default status
+      deviceStatus: "off",
       deviceDetails: deviceDetails,
     };
-
     addDevice(newDevice);
     setShowModal(false);
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === "device_list_by_room" || data.type === "broadcast") {
+        console.log("hello");
+        console.log(data.content);
+      }
+    } catch (err) {
+      console.error("Failed to parse message:", err);
+    }
   };
 
   const handleDeviceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const type = e.target.value;
     setDeviceType(type);
 
-    // Set default device details based on device type
     switch (type) {
       case "ac":
         setDeviceDetails({
-          temperature: 22, // Default temperature for AC
-          mode: "cool", // Default mode for AC
+          temperature: 22,
+          mode: "cool",
         });
         break;
       case "light":
         setDeviceDetails({
-          brightness: 50, // Default brightness for light
-          color: "white", // Default color for light
+          brightness: 50,
+          color: "white",
         });
         break;
       case "fan":
         setDeviceDetails({
-          speed: 1, // Default speed for fan
-          second: "low", // Default setting for fan
+          speed: 1,
+          second: "low",
         });
         break;
       default:
-        setDeviceDetails(null); // Reset deviceDetails if no valid type selected
+        setDeviceDetails(null);
     }
   };
 
-  // Type guards for accessing device details properties
   const isACDetails = (
     details: ACDetails | LightDetails | FanDetails,
   ): details is ACDetails => {

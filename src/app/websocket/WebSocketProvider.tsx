@@ -21,6 +21,14 @@ interface WebSocketContextType {
   sendMessage: (data: Message) => void;
   getAllRooms: () => void;
   getAllDevices: () => void;
+  addNewDevice: (
+    deviceId: string,
+    deviceName: string,
+    deviceType: string,
+    roomId: string,
+    deviceStatus: string,
+    deviceDetails: Array<number | string>,
+  ) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -94,6 +102,31 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addNewDevice = (
+    deviceId: string,
+    deviceName: string,
+    deviceType: string,
+    roomId: string,
+    deviceStatus: string,
+    deviceDetails: Array<number | string>,
+  ) => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          action: "add_device",
+          device_id: deviceId,
+          device_name: deviceName,
+          type: deviceType,
+          room_id: roomId,
+          device_status: deviceStatus,
+          device_details: deviceDetails,
+        }),
+      );
+    } else {
+      console.warn("Cannot add device");
+    }
+  };
+
   useEffect(() => {
     const ws = connectWebSocket();
     return () => ws?.close();
@@ -103,7 +136,14 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <WebSocketContext.Provider
-      value={{ socket, connected, sendMessage, getAllRooms, getAllDevices }}
+      value={{
+        socket,
+        connected,
+        sendMessage,
+        getAllRooms,
+        getAllDevices,
+        addNewDevice,
+      }}
     >
       {children}
     </WebSocketContext.Provider>
