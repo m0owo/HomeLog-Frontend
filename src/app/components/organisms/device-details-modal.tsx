@@ -1,22 +1,50 @@
 "use client";
 
 import { useState } from "react";
+import { useWebSocket } from "@/app/websocket/WebSocketProvider";
 import ToggleSwitch from "../atoms/toggle-switch";
+import { Device } from "../molecules/room-component";
 
 interface AddRoomModalProps {
+  device: Device;
   setShowModal: (show: boolean) => void;
 }
 
 export default function DeviceDetailsModal({
+  device,
   setShowModal,
 }: AddRoomModalProps) {
-  const deviceType: string = "fan"; //light, fan
+  const { updateDeviceDetails } = useWebSocket();
+  const deviceType: string = device.deviceType;
 
-  const [brightness, setBrightness] = useState(deviceType === "light" ? 50 : 0); // For light
-  const [temp, setTemperature] = useState(deviceType === "ac" ? 22 : 0); // For ac
-  const [speed, setSpeed] = useState(deviceType === "fan" ? 1 : 0); // For fan
+  const [brightness, setBrightness] = useState(
+    deviceType === "light" && "brightness" in device.deviceDetails
+      ? device.deviceDetails.brightness
+      : 0,
+  );
 
-  const [deviceOn, setDeviceOn] = useState(true);
+  const [temp, setTemperature] = useState(
+    deviceType === "ac" && "temperature" in device.deviceDetails
+      ? device.deviceDetails.temperature
+      : 0,
+  );
+
+  const [speed, setSpeed] = useState(
+    deviceType === "fan" && "speed" in device.deviceDetails
+      ? device.deviceDetails.speed
+      : 0,
+  );
+
+  const [deviceOn, setDeviceOn] = useState(device.deviceStatus);
+  console.log(deviceOn);
+
+  const [deviceMode, setDeviceMode] = useState(
+    "color" in device.deviceDetails
+      ? device.deviceDetails.color
+      : "mode" in device.deviceDetails
+        ? device.deviceDetails.mode
+        : "",
+  );
 
   const handleBrightnessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBrightness(Number(e.target.value)); // Convert string to number
@@ -28,6 +56,32 @@ export default function DeviceDetailsModal({
 
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSpeed(Number(e.target.value)); // Convert string to number
+  };
+
+  const handleSave = () => {
+    let updatedDetails: { [key: string]: string | number } = {};
+
+    if (deviceType === "light") {
+      updatedDetails = {
+        brightness,
+        color: deviceMode,
+      };
+    } else if (deviceType === "ac") {
+      updatedDetails = {
+        temperature: temp,
+        mode: deviceMode,
+      };
+    } else if (deviceType === "fan") {
+      updatedDetails = {
+        speed,
+      };
+    }
+
+    updateDeviceDetails(
+      device.deviceId,
+      deviceOn ? "on" : "off",
+      Object.values(updatedDetails),
+    );
   };
 
   return (
@@ -64,6 +118,8 @@ export default function DeviceDetailsModal({
               name="colorSelect"
               id="colorSelect"
               className="rounded-sm border-[1px] border-black"
+              value={deviceMode}
+              onChange={(e) => setDeviceMode(e.target.value)}
             >
               <option value="warm">Warm</option>
               <option value="cool">Cool</option>
@@ -96,6 +152,8 @@ export default function DeviceDetailsModal({
               name="modeSelect"
               id="modeSelect"
               className="rounded-sm border-[1px] border-black"
+              value={deviceMode}
+              onChange={(e) => setDeviceMode(e.target.value)}
             >
               <option value="cold">Cold</option>
               <option value="fan">Fan</option>
@@ -131,7 +189,10 @@ export default function DeviceDetailsModal({
         >
           Cancel
         </button>
-        <button className="rounded border-[1px] border-black bg-white px-4 py-2 text-black">
+        <button
+          className="rounded border-[1px] border-black bg-white px-4 py-2 text-black"
+          onClick={handleSave}
+        >
           Save
         </button>
       </div>

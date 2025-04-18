@@ -30,6 +30,11 @@ interface WebSocketContextType {
     deviceDetails: Array<number | string>,
   ) => void;
   addNewRoom: (roomName: string) => void;
+  updateDeviceDetails: (
+    deviceId: string,
+    deviceStatus: string,
+    deviceDetails: Array<number | string>,
+  ) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -142,6 +147,50 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateDeviceDetails = (
+    deviceId: string,
+    deviceStatus: string,
+    deviceDetails: Array<number | string>,
+  ) => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      if (deviceStatus === "on") {
+        socket.send(
+          JSON.stringify({
+            action: "turn_on",
+            device_id: deviceId,
+          }),
+        );
+      } else if (deviceStatus === "off") {
+        socket.send(
+          JSON.stringify({
+            action: "turn_off",
+            device_id: deviceId,
+          }),
+        );
+      }
+      socket.send(
+        JSON.stringify({
+          action: "increase",
+          device_id: deviceId,
+          input_value: deviceDetails[0],
+        }),
+      );
+
+      if (deviceDetails[1]) {
+        socket.send(
+          JSON.stringify({
+            action: "change_mode",
+            device_id: deviceId,
+            new_mode: deviceDetails[1],
+          }),
+        );
+      }
+      getAllDevices();
+    } else {
+      console.warn("Cannot update device");
+    }
+  };
+
   useEffect(() => {
     const ws = connectWebSocket();
     return () => ws?.close();
@@ -159,6 +208,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         getAllDevices,
         addNewDevice,
         addNewRoom,
+        updateDeviceDetails,
       }}
     >
       {children}

@@ -72,7 +72,9 @@ export default function DeviceCard({ device }: DeviceCardProps) {
   };
 
   return (
-    <div className="h-full w-full rounded-md bg-white p-2 shadow-sm">
+    <div
+      className={`h-full w-full rounded-md ${device.deviceStatus === "on" ? "bg-white" : "bg-gray-400"} p-2 shadow-sm`}
+    >
       <button
         onClick={() => setShowModal(true)}
         className="flex flex-row gap-4 p-2"
@@ -92,7 +94,7 @@ export default function DeviceCard({ device }: DeviceCardProps) {
           <div className="fixed inset-0 z-40 bg-black opacity-35" />
 
           <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <DeviceDetailsModal setShowModal={setShowModal} />
+            <DeviceDetailsModal setShowModal={setShowModal} device={device} />
           </div>
         </div>
       )}
