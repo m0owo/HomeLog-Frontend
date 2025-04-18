@@ -62,11 +62,7 @@ export default function DeviceCard({ device }: DeviceCardProps) {
         break;
       case "fan":
         if (isFanDetails(deviceDetails)) {
-          return (
-            <div>
-              Speed: {deviceDetails.speed} <br />
-            </div>
-          );
+          return <div>Speed: {deviceDetails.speed}</div>;
         }
         break;
       default:
@@ -88,7 +84,7 @@ export default function DeviceCard({ device }: DeviceCardProps) {
         </div>
         <div className="flex flex-col items-start justify-start">
           <p className="text-start font-semibold">{device.deviceName}</p>
-          <p className="text-start">{deviceDetailsToString(device)}</p>
+          <div className="text-start">{deviceDetailsToString(device)}</div>
         </div>
       </button>
       {showModal && (

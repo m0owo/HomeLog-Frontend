@@ -29,6 +29,7 @@ interface WebSocketContextType {
     deviceStatus: string,
     deviceDetails: Array<number | string>,
   ) => void;
+  addNewRoom: (roomName: string) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -127,6 +128,20 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addNewRoom = (roomName: string) => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          action: "add_room",
+          room_id: roomName,
+          room_name: roomName,
+        }),
+      );
+    } else {
+      console.warn("Cannot add room");
+    }
+  };
+
   useEffect(() => {
     const ws = connectWebSocket();
     return () => ws?.close();
@@ -143,6 +158,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         getAllRooms,
         getAllDevices,
         addNewDevice,
+        addNewRoom,
       }}
     >
       {children}

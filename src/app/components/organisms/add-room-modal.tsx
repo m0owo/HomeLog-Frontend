@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useWebSocket } from "@/app/websocket/WebSocketProvider";
 import { Room } from "../molecules/room-component";
 
 interface AddRoomModalProps {
@@ -12,6 +13,7 @@ export default function AddRoomModal({
   setShowModal,
   addRoom,
 }: AddRoomModalProps) {
+  const { socket, addNewRoom } = useWebSocket();
   const [roomName, setRoomName] = useState("");
 
   const handleSubmit = () => {
@@ -19,6 +21,8 @@ export default function AddRoomModal({
       alert("Room name cannot be empty!");
       return;
     }
+
+    addNewRoom(roomName);
 
     const newRoom: Room = {
       id: roomName,
@@ -28,6 +32,17 @@ export default function AddRoomModal({
     addRoom(newRoom);
     setRoomName("");
     setShowModal(false);
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === "room_list" || data.type === "broadcast") {
+        console.log("roomlist or broadcast", data.content);
+      }
+    } catch (err) {
+      console.error("Failed to parse message:", err);
+    }
   };
 
   return (

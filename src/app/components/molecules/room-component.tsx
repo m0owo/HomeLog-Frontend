@@ -92,7 +92,7 @@ export default function RoomComponent({
             + Add Device
           </button>
         </div>
-        {roomDevices.length === 0 ? (
+        {curDevices.length === 0 ? (
           <div className="mt-4 text-gray-500 italic">No devices to show.</div>
         ) : (
           <div className="p-0 py-2">
@@ -124,6 +124,7 @@ export default function RoomComponent({
               roomId={room.id}
               setShowModal={setShowModal}
               addDevice={(newDevice) => {
+                console.log("Adding Devices, cur devices", curDevices);
                 setCurDevices((prev) => [...prev, newDevice]);
               }}
             />
