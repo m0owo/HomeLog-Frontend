@@ -36,23 +36,37 @@ export default function DeviceCard({ device }: DeviceCardProps) {
   ): details is FanDetails {
     return (details as FanDetails).speed !== undefined;
   }
-  const deviceDetailsToString = (device: Device): string => {
+  const deviceDetailsToString = (device: Device) => {
     const { deviceType, deviceDetails } = device;
 
     switch (deviceType) {
       case "ac":
         if (isACDetails(deviceDetails)) {
-          return `AC - Temperature: ${deviceDetails.temperature}°C, Mode: ${deviceDetails.mode}`;
+          return (
+            <div>
+              Temperature: {deviceDetails.temperature}°C <br />
+              Mode: {deviceDetails.mode}
+            </div>
+          );
         }
         break;
       case "light":
         if (isLightDetails(deviceDetails)) {
-          return `Light - Brightness: ${deviceDetails.brightness}%, Color: ${deviceDetails.color}`;
+          return (
+            <div>
+              Brightness: {deviceDetails.brightness} <br />
+              Color: {deviceDetails.color}
+            </div>
+          );
         }
         break;
       case "fan":
         if (isFanDetails(deviceDetails)) {
-          return `Fan - Speed: ${deviceDetails.speed}`;
+          return (
+            <div>
+              Speed: {deviceDetails.speed} <br />
+            </div>
+          );
         }
         break;
       default:
