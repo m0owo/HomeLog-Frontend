@@ -42,6 +42,30 @@ export default function RoutinesPage() {
     setWeeklyPrompts(updated);
   };
 
+  const generateCronExpression = () => {
+    if (routineType === "daily") {
+      const [hour, minute] = dailyTime.split(":");
+      return `${minute} ${hour} * * *`; // daily cron
+    }
+
+    if (routineType === "weekly") {
+      const selectedDays = daysOfWeek
+        .map((selected, index) => (selected ? index : null))
+        .filter((day) => day !== null);
+
+      if (selectedDays.length === 0) return "";
+
+      const cronExpressions = selectedDays.map((dayIndex) => {
+        const [hour, minute] = weeklyTimes[dayIndex].split(":");
+        return `${minute} ${hour} * * ${dayIndex}`; // weekly cron
+      });
+
+      return cronExpressions;
+    }
+
+    return "";
+  };
+
   return (
     <div className="space-y-4 p-4">
       <div>
@@ -136,6 +160,22 @@ export default function RoutinesPage() {
           )}
         </div>
       )}
+
+      <div className="mt-6 space-y-2">
+        <button
+          onClick={() => {
+            const cron = generateCronExpression();
+            alert(
+              Array.isArray(cron)
+                ? cron.join("\n")
+                : cron || "No CRON generated. Please configure the routine.",
+            );
+          }}
+          className="rounded-md border-[1px] border-black bg-white px-4 py-2 text-black"
+        >
+          Generate CRON Expression
+        </button>
+      </div>
     </div>
   );
 }
