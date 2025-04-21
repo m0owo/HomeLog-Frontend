@@ -23,6 +23,15 @@ export default function RoutinesPage() {
   const [dailyPrompt, setDailyPrompt] = useState("");
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const fullDayNames = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
 
   const handleDayToggle = (index: number) => {
     const updated = [...daysOfWeek];
@@ -42,10 +51,13 @@ export default function RoutinesPage() {
     setWeeklyPrompts(updated);
   };
 
-  const generateCronExpression = () => {
+  const generateRoutineConfig = () => {
     if (routineType === "daily") {
-      const [hour, minute] = dailyTime.split(":");
-      return `${minute} ${hour} * * *`; // daily cron
+      return {
+        every: [...fullDayNames],
+        time: dailyTime,
+        prompt: dailyPrompt,
+      };
     }
 
     if (routineType === "weekly") {
@@ -53,17 +65,18 @@ export default function RoutinesPage() {
         .map((selected, index) => (selected ? index : null))
         .filter((day) => day !== null);
 
-      if (selectedDays.length === 0) return "";
+      if (selectedDays.length === 0) return null;
 
-      const cronExpressions = selectedDays.map((dayIndex) => {
-        const [hour, minute] = weeklyTimes[dayIndex].split(":");
-        return `${minute} ${hour} * * ${dayIndex}`; // weekly cron
-      });
+      const routines = selectedDays.map((dayIndex) => ({
+        every: [fullDayNames[dayIndex]],
+        time: weeklyTimes[dayIndex],
+        prompt: weeklyPrompts[dayIndex],
+      }));
 
-      return cronExpressions;
+      return routines;
     }
 
-    return "";
+    return null;
   };
 
   return (
@@ -164,16 +177,16 @@ export default function RoutinesPage() {
       <div className="mt-6 space-y-2">
         <button
           onClick={() => {
-            const cron = generateCronExpression();
+            const config = generateRoutineConfig();
             alert(
-              Array.isArray(cron)
-                ? cron.join("\n")
-                : cron || "No CRON generated. Please configure the routine.",
+              config
+                ? JSON.stringify(config, null, 2)
+                : "No routine generated. Please configure the routine.",
             );
           }}
           className="rounded-md border-[1px] border-black bg-white px-4 py-2 text-black"
         >
-          Generate CRON Expression
+          Generate Routine
         </button>
       </div>
     </div>
