@@ -9,16 +9,16 @@ import React, {
   useState,
 } from "react";
 
-export interface Message {
-  id: Date;
-  text: string;
-  sender: string;
-}
+// export interface Message {
+//   id: Date;
+//   text: string;
+//   sender: string;
+// }
 
 interface WebSocketContextType {
   socket: WebSocket;
   connected: boolean;
-  sendMessage: (data: Message) => void;
+  sendMessage: (data: any) => void;
   getAllRooms: () => void;
   getAllDevices: () => void;
   addNewDevice: (

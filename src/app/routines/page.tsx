@@ -185,27 +185,19 @@ export default function RoutinesPage() {
                 // Handle weekly routines (multiple days)
                 config.forEach((routine) => {
                   sendMessage({
-                    id: new Date(),
-                    text: JSON.stringify({
-                      action: "add_schedule",
-                      every: routine.every,
-                      time: routine.time,
-                      prompt: routine.prompt,
-                    }),
-                    sender: "user",
+                    action: "add_schedule",
+                    every: routine.every,
+                    time: routine.time,
+                    prompt: routine.prompt,
                   });
                 });
               } else {
                 // Handle daily routine
                 sendMessage({
-                  id: new Date(),
-                  text: JSON.stringify({
-                    action: "add_schedule",
-                    every: config.every,
-                    time: config.time,
-                    prompt: config.prompt,
-                  }),
-                  sender: "user",
+                  action: "add_schedule",
+                  every: ["everyday"],
+                  time: config.time,
+                  prompt: config.prompt,
                 });
               }
               alert("Routine(s) sent to server successfully!");
