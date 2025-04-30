@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useWebSocket } from "../websocket/WebSocketProvider";
 
 export default function RoutinesPage() {
+  const { sendMessage } = useWebSocket();
   const [routineType, setRoutineType] = useState("");
   const [daysOfWeek, setDaysOfWeek] = useState<boolean[]>([
     false,
@@ -178,11 +180,38 @@ export default function RoutinesPage() {
         <button
           onClick={() => {
             const config = generateRoutineConfig();
-            alert(
-              config
-                ? JSON.stringify(config, null, 2)
-                : "No routine generated. Please configure the routine.",
-            );
+            if (config) {
+              if (Array.isArray(config)) {
+                // Handle weekly routines (multiple days)
+                config.forEach((routine) => {
+                  sendMessage({
+                    id: new Date(),
+                    text: JSON.stringify({
+                      action: "add_schedule",
+                      every: routine.every,
+                      time: routine.time,
+                      prompt: routine.prompt,
+                    }),
+                    sender: "user",
+                  });
+                });
+              } else {
+                // Handle daily routine
+                sendMessage({
+                  id: new Date(),
+                  text: JSON.stringify({
+                    action: "add_schedule",
+                    every: config.every,
+                    time: config.time,
+                    prompt: config.prompt,
+                  }),
+                  sender: "user",
+                });
+              }
+              alert("Routine(s) sent to server successfully!");
+            } else {
+              alert("No routine generated. Please configure the routine.");
+            }
           }}
           className="rounded-md border-[1px] border-black bg-white px-4 py-2 text-black"
         >
